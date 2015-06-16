@@ -1,3 +1,8 @@
+'''
+Created on Jun 16, 2015
+
+@author: Dmitry Marcautsan
+'''
 class LinkedList(object):
     """Implementation of a linked list data structure"""
 

@@ -1,3 +1,8 @@
+'''
+Created on Jun 16, 2015
+
+@author: Dmitry Marcautsan
+'''
 class BinarySearchTree(object):
     """Implementation of a Binary Search Tree data structure"""
 
