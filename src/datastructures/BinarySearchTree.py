@@ -27,17 +27,53 @@ class BinarySearchTree(object):
             return
 
         current = self.root
-        next = current.left if current.data > data else current.right
+        next_node = current.left if current.data > data else current.right
 
-        while next is not None:
-            current = next
-            next = current.left if current.data > data else current.right
+        while next_node is not None:
+            current = next_node
+            next_node = current.left if current.data > data else current.right
 
         data_node.parent = current
         if current.data > data:
             current.left = data_node 
         else: 
             current.right = data_node
+            
+        self._after_insert_hook(data_node)
+        
+    def delete(self, data):
+        found_node = self._find_node(data, self.root)
+        self._delete_node(found_node)
+    
+    def _delete_node(self, node):
+        if node is None:
+            return
+        
+        if node.left is None and node.right is None:
+            if self.root is node:
+                self.root = None
+            else:
+                self._replace_subtree(node, None)
+        elif node.left is None or node.right is None:
+            child_node = node.left if node.left is not None else node.right
+            self._replace_subtree(node, child_node)
+        else:
+            child_node = self._find_min_node(node.right)
+            
+            self._delete_node(child_node)
+            self._replace_subtree(node, child_node)
+            
+            child_node.left = node.left
+            child_node.right = node.right
+            if child_node.left is not None:
+                child_node.left.parent = child_node
+            if child_node.right is not None:
+                child_node.right.parent = child_node
+        
+        node.parent = node.left = node.right = None
+        
+        self._after_delete_hook(node)
+        return node   
 
     def traverse_inorder(self, apply):
         if self.root is None:
@@ -56,6 +92,36 @@ class BinarySearchTree(object):
             apply(node.data)
             if node.right is not None:
                 self._visit_inorder(node.right, apply)
+                
+    def _after_insert_hook(self, node):
+        pass
+    
+    def _after_delete_hook(self, node):
+        pass
+
+    def _find_node(self, data, subtree_root):              
+        if subtree_root is None:
+            return None
+        elif subtree_root.data == data:
+            return subtree_root
+        else:
+            return self._find_node(data, subtree_root.left if data < subtree_root.data else subtree_root.right)
+        
+    def _find_min_node(self, subtree_root):
+        if subtree_root.left is None:
+            return subtree_root
+        else:
+            return self._find_min_node(subtree_root.left)
+    
+    def _replace_subtree(self, subtree_root, replace_root):
+        if subtree_root.parent is not None:
+            if subtree_root.parent.left is subtree_root:
+                subtree_root.parent.left = replace_root
+            else:
+                subtree_root.parent.right = replace_root
+                
+        if replace_root is not None:   
+            replace_root.parent = subtree_root.parent   
 
     def __str__(self):
         if self.root is None:
